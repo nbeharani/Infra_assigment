@@ -1,22 +1,27 @@
-version: '3.8'
+
+version: '3'
+
 services:
  csvserver:
-    image: prom/prometheus:v2.22.0
+    image: infracloudio/csvserver:latest
     volumes:
       - "./inputFile:/csvserver/inputdata"
     ports:
       - "9393:9300"
-   prometheus:
-    image: prom/prometheus:v2.21.0
+ prometheus:
+    image: prom/prometheus:v2.22.0
     ports:
-      - 9300:9090
+      - "9090:9090"
+    depends_on:
+      - csvserver
     volumes:
-      - ./prometheus:/etc/prometheus
+      - /etc/prometheus:/etc/prometheus/
       - prometheus-data:/prometheus
-    command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
-
-
+    command: 
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    
 volumes:
-  prometheus-data:
-depends on:
-   - csvserver
+  prometheus-data: {}

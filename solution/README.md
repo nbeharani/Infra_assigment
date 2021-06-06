@@ -31,7 +31,10 @@ You don't need to know Docker or Prometheus beforehand to solve this assignment,
 
 ## Part I
   1. Run the container image `infracloudio/csvserver:latest` in background and check if it's running.
+    # docker run -d -p 9393:9300 infracloudio/csvserver:latest
   2. If it's failing then try to find the reason, once you find the reason, move to the next step.
+    # create gencsv.sh file with the following content:
+     
   3. Write a bash script `gencsv.sh` to generate a file named `inputFile` whose content looks like:
      ```csv
      0, 234
@@ -42,11 +45,22 @@ You don't need to know Docker or Prometheus beforehand to solve this assignment,
      - Running the script without any arguments, should generate the file `inputFile` with 10 such entries in current directory.
      - *You should be able to extend this script to generate any number of entries, for example 100000 entries.*
      - Run the script to generate the `inputFile`. Make sure that the generated file is readable by other users.
+    #output=inputFile
+    #RANDOM=$$
+    #for i in `seq 10`
+    #do
+    #            echo $((i++)), $RANDOM
+    #    done > $output
+    it will generate the input file in folder /root/csvserver/solution/InputFile
   4. Run the container again in the background with file generated in (3) available inside the container (remember the reason you found in (2)).
+    # docker run -d -p 9393:9300 -v /home/nbeharani/csvserver/solution/inputFile:/csvserver/inputdata infracloudio/csvserver:latest
   5. Get shell access to the container and find the port on which the application is listening. Once done, stop / delete the running container.
+     #docker exec -it container name /bin/bash 
   6. Same as (4), run the container and make sure,
      - The application is accessible on the host at http://localhost:9393
      - Set the environment variable `CSVSERVER_BORDER` to have value `Orange`.
+     #docker run -d -p 9393:9300 --env CSVSERVER_BORDER=Orange -v /home/nbeharani/csvserver/solution/inputFile:/csvserver/inputdata infracloudio/csvserver:latest
+  
 
 The application should be accessible at http://localhost:9393, it should have the 10 entries from `inputFile` and the welcome note should have an orange color border.
 
@@ -56,8 +70,8 @@ The application should be accessible at http://localhost:9393, it should have th
 
 ### Save the solution
   - Create a file called `README.md` in the `solution` directory with all the commands you executed as part of this section (Part I).
-  - Write the `docker run` command you executed for (6) in a file named `part-1-cmd`.
-  - Run one of the following commands which will generate a file with name `part-1-output`.
+  - Write the `docker run` command you executed for (6) in a file named `part-1-cmd`. - /root/csvserver/solution/
+  - Run one of the following commands which will generate a file with name `part-1-output`. - /root/csvserver/solution/
 	```console
 	curl -o ./part-1-output http://localhost:9393/raw
 	# if the above command fails use,
@@ -65,7 +79,7 @@ The application should be accessible at http://localhost:9393, it should have th
 	```
   - Run the following command which will generate a file with name `part-1-logs`.
 	```console
-	docker logs [container_id] >& part-1-logs
+	docker logs [container_id] >& part-1-logs /root/csvserver/solution
 	```
   - Make sure that the files `gencsv.sh`, `inputFile`, `part-1-cmd`, `part-1-output`, `part-1-logs` are present in the `solution` directory.
   - Commit and push the changes to your repository on GitHub.
@@ -73,20 +87,33 @@ The application should be accessible at http://localhost:9393, it should have th
 > **NOTE**: One should be able to follow the instructions from the `solution/README.md` file and get csvserver running on their machine.
 
 ## Part II
-  0. Delete any containers running from the last part.
+  0. Delete any containers running from the last part. 
+   # docker stop containerid
+   # docker rm containerid
   1. Create a `docker-compose.yaml` file for the setup from part I.
+   # /root/csvserver/solution
   2. One should be able to run the application with `docker-compose up`.
+   # docker-compose up
 
 ### Save the solution
   - Copy the `docker-compose.yaml` to the `solution` directory.
+   # /root/csvserver/solution/docker-compose.yaml
   - Commit and push the changes to your repository on GitHub.
+   # git add .
+   # git commit -m "done part2"
+   # git push
 
 ## Part III
   0. Delete any containers running from the last part.
+   # docker stop containerid
+   # docker rm containerid
   1. Add Prometheus container (`prom/prometheus:v2.22.0`) to the docker-compose.yaml form part II.
+  # created docker-compose.yaml file in /root/csvserver/solution/docker-compose.yaml
   2. Configure Prometheus to collect data from our application at `<application>:<port>/metrics` endpoint. (Where the `<port>` is the port from I.5)
   3. Make sure that Prometheus is accessible at http://localhost:9090 on the host.
   4. Type `csvserver_records` in the query box of Prometheus. Click on Execute and then switch to the Graph tab.
+    # showing as same
+
 
 The Prometheus instance should be accessible at http://localhost:9090, and it should show a straight line graph with value 10 (consider shrinking the time range to 5m).
 
